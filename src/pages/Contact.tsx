@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
@@ -6,8 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import FreeTrialForm from "../components/forms/FreeTrialForm";
 
 const Contact = () => {
+  const [showTrialForm, setShowTrialForm] = useState(true);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     alert("Ваше сообщение отправлено! Мы свяжемся с вами в ближайшее время.");
@@ -15,6 +18,7 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      <FreeTrialForm open={showTrialForm} onOpenChange={setShowTrialForm} />
       <Navbar transparent={false} />
 
       {/* Header */}
@@ -263,11 +267,16 @@ const Contact = () => {
       <section className="py-12 bg-gray-900">
         <div className="container mx-auto px-4">
           <div className="rounded-lg overflow-hidden h-[400px]">
-            {/* Здесь можно добавить iframe с Google Maps или другой картой */}
-            <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-              <p className="text-gray-400">Карта загружается...</p>
-              {/* В реальном проекте здесь будет iframe с картой */}
-            </div>
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2504.5919331876!2d71.41488867677893!3d51.09031437169251!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x424585a605525605%3A0x4dff4a6d5473d56!2sMega%20Silk%20Way!5e0!3m2!1sen!2skz!4v1693913271961!5m2!1sen!2skz"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen={true}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Карта расположения студии танцев"
+            ></iframe>
           </div>
         </div>
       </section>

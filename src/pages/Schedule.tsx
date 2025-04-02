@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import ProfileDialog from "../components/auth/ProfileDialog";
+import ClassBookingForm from "../components/auth/ClassBookingForm";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, Users, Filter } from "lucide-react";
 
@@ -197,7 +198,14 @@ const Schedule = () => {
                     </div>
                   </div>
 
-                  <ProfileDialog
+                  <ClassBookingForm
+                    open={false}
+                    onOpenChange={() => {}}
+                    className={classItem.title}
+                    instructor={classItem.instructor}
+                    time={classItem.time}
+                    date={classItem.date}
+                    level={classItem.level}
                     trigger={
                       <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">
                         Забронировать

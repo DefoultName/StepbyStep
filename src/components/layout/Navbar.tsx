@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, User } from "lucide-react";
 import ProfileDialog from "../auth/ProfileDialog";
+import { useAuth } from "../auth/AuthContext";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -19,6 +20,7 @@ interface NavbarProps {
 const Navbar = ({ transparent = false }: NavbarProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -105,9 +107,10 @@ const Navbar = ({ transparent = false }: NavbarProps) => {
             trigger={
               <Button
                 variant="ghost"
-                className="text-white hover:text-purple-400 hover:bg-transparent"
+                className="text-white hover:text-purple-400 hover:bg-transparent flex items-center gap-2"
               >
-                Войти
+                <User className="h-4 w-4" />
+                {isAuthenticated ? user?.name || "Профиль" : "Войти"}
               </Button>
             }
           />
@@ -183,9 +186,10 @@ const Navbar = ({ transparent = false }: NavbarProps) => {
                   trigger={
                     <Button
                       variant="outline"
-                      className="w-full border-white text-white hover:bg-purple-600 hover:text-white hover:border-transparent"
+                      className="w-full border-white text-white hover:bg-purple-600 hover:text-white hover:border-transparent flex items-center justify-center gap-2"
                     >
-                      Войти
+                      <User className="h-4 w-4" />
+                      {isAuthenticated ? user?.name || "Профиль" : "Войти"}
                     </Button>
                   }
                 />

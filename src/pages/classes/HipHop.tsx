@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
 import ProfileDialog from "../../components/auth/ProfileDialog";
+import ClassBookingForm from "../../components/auth/ClassBookingForm";
 import { Button } from "@/components/ui/button";
 
 const HipHop = () => {
@@ -141,7 +142,14 @@ const HipHop = () => {
               </div>
 
               <div className="mt-8">
-                <ProfileDialog
+                <ClassBookingForm
+                  open={false}
+                  onOpenChange={() => {}}
+                  className="Хип-Хоп"
+                  instructor="Маркус Чен"
+                  time="17:30 - 19:00"
+                  date="Вторник"
+                  level="Начинающий"
                   trigger={
                     <Button className="bg-purple-600 hover:bg-purple-700 text-white">
                       Записаться на занятие
@@ -275,7 +283,14 @@ const HipHop = () => {
                     </div>
                   </div>
 
-                  <ProfileDialog
+                  <ClassBookingForm
+                    open={false}
+                    onOpenChange={() => {}}
+                    className="Хип-Хоп"
+                    instructor={item.instructor}
+                    time={item.time.split(", ")[1]}
+                    date={item.time.split(", ")[0]}
+                    level={item.level}
                     trigger={
                       <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">
                         Забронировать

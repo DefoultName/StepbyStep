@@ -7,7 +7,10 @@ interface User {
   phone?: string;
   membership?: {
     plan: string;
-    expiresAt: Date;
+    style?: string;
+    remainingClasses: number;
+    totalClasses: number;
+    purchasedAt: Date;
   };
 }
 
@@ -23,7 +26,7 @@ interface AuthContextType {
   ) => Promise<void>;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
-  purchaseMembership: (plan: string) => void;
+  purchaseMembership: (plan: string, style?: string, classes?: number) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -36,52 +39,47 @@ export const useAuth = () => {
   return context;
 };
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+// Using named function declaration for consistent Fast Refresh
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Проверяем, есть ли сохраненный пользователь при загрузке
+  // Check if there's a saved user on load
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
       const parsedUser = JSON.parse(savedUser);
-      // Преобразуем строку даты обратно в объект Date
-      if (parsedUser.membership && parsedUser.membership.expiresAt) {
-        parsedUser.membership.expiresAt = new Date(
-          parsedUser.membership.expiresAt,
+      // Convert date string back to Date object
+      if (parsedUser.membership && parsedUser.membership.purchasedAt) {
+        parsedUser.membership.purchasedAt = new Date(
+          parsedUser.membership.purchasedAt,
         );
       }
       setUser(parsedUser);
       setIsAuthenticated(true);
 
-      // Проверяем срок действия абонемента
+      // Check membership expiration
       checkMembershipExpiration(parsedUser);
     }
   }, []);
 
-  // Проверка срока действия абонемента и отправка уведомления
+  // Check remaining classes in membership and send notification
   const checkMembershipExpiration = (user: User) => {
-    if (user.membership && user.membership.expiresAt) {
-      const expiresAt = new Date(user.membership.expiresAt);
-      const now = new Date();
-      const daysLeft = Math.ceil(
-        (expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
-      );
+    if (user.membership && user.membership.remainingClasses !== undefined) {
+      const remainingClasses = user.membership.remainingClasses;
 
-      if (daysLeft <= 3 && daysLeft > 0) {
-        // Отправляем уведомление о скором окончании абонемента
+      if (remainingClasses <= 3 && remainingClasses > 0) {
+        // Send notification about membership expiration
         if (Notification.permission === "granted") {
-          new Notification("Срок действия абонемента истекает", {
-            body: `Ваш абонемент "${user.membership.plan}" истекает через ${daysLeft} ${getDaysWord(daysLeft)}. Не забудьте продлить!`,
+          new Notification("Membership Expiring", {
+            body: `Your membership \"${user.membership.plan}\" (${user.membership.style || "All styles"}): ${remainingClasses} ${getClassesWord(remainingClasses)} remaining. Don't forget to renew!`,
             icon: "/favicon.ico",
           });
         } else if (Notification.permission !== "denied") {
           Notification.requestPermission().then((permission) => {
             if (permission === "granted") {
-              new Notification("Срок действия абонемента истекает", {
-                body: `Ваш абонемент "${user.membership.plan}" истекает через ${daysLeft} ${getDaysWord(daysLeft)}. Не забудьте продлить!`,
+              new Notification("Membership Expiring", {
+                body: `Your membership \"${user.membership.plan}\" (${user.membership.style || "All styles"}): ${remainingClasses} ${getClassesWord(remainingClasses)} remaining. Don't forget to renew!`,
                 icon: "/favicon.ico",
               });
             }
@@ -91,65 +89,122 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  // Склонение слова "день"
+  // Word declension for "day"
   const getDaysWord = (days: number): string => {
-    if (days % 10 === 1 && days % 100 !== 11) {
-      return "день";
-    } else if (
-      [2, 3, 4].includes(days % 10) &&
-      ![12, 13, 14].includes(days % 100)
-    ) {
-      return "дня";
+    if (days === 1) {
+      return "day";
     } else {
-      return "дней";
+      return "days";
     }
   };
 
-  // Имитация входа в систему
-  const login = async (email: string, password: string) => {
-    // В реальном приложении здесь был бы запрос к API
-    // Имитируем успешный вход
-    const mockUser: User = {
-      id: "1",
-      name: "Пользователь",
-      email: email,
-      phone: "+7 (999) 123-4567",
-    };
-
-    setUser(mockUser);
-    setIsAuthenticated(true);
-    localStorage.setItem("user", JSON.stringify(mockUser));
+  // Word declension for "class"
+  const getClassesWord = (classes: number): string => {
+    if (classes === 1) {
+      return "class";
+    } else {
+      return "classes";
+    }
   };
 
-  // Имитация регистрации
+  // Login simulation
+  const login = async (email: string, password: string) => {
+    try {
+      // In a real app, this would be an API request
+      // Check if user exists in our "database"
+      const registeredUsers = localStorage.getItem("registeredUsers");
+      let users = [];
+
+      if (registeredUsers) {
+        users = JSON.parse(registeredUsers);
+      } else {
+        throw new Error("No registered users found. Please register first.");
+      }
+
+      const foundUser = users.find((u: any) => u.email === email);
+
+      if (!foundUser) {
+        throw new Error("User with this email not found. Please register.");
+      }
+
+      // In a real app, this would check the password securely
+      // For demonstration, check that password matches the stored one
+      if (
+        !password ||
+        (foundUser.password && foundUser.password !== password)
+      ) {
+        throw new Error("Invalid password");
+      }
+
+      const mockUser: User = {
+        id: foundUser.id,
+        name: foundUser.name,
+        email: foundUser.email,
+        phone: foundUser.phone,
+        membership: foundUser.membership,
+      };
+
+      setUser(mockUser);
+      setIsAuthenticated(true);
+      localStorage.setItem("user", JSON.stringify(mockUser));
+    } catch (error) {
+      console.error("Login error:", error);
+      throw error;
+    }
+  };
+
+  // Registration simulation
   const register = async (
     name: string,
     email: string,
     password: string,
     phone?: string,
   ) => {
-    // В реальном приложении здесь был бы запрос к API
-    // Имитируем успешную регистрацию
-    const mockUser: User = {
-      id: "1",
-      name: name,
-      email: email,
-      phone: phone,
-    };
+    try {
+      // In a real app, this would be an API request
+      // Check if user with this email already exists
+      const registeredUsers = localStorage.getItem("registeredUsers");
+      let users = [];
 
-    setUser(mockUser);
-    setIsAuthenticated(true);
-    localStorage.setItem("user", JSON.stringify(mockUser));
+      if (registeredUsers) {
+        users = JSON.parse(registeredUsers);
+        const existingUser = users.find((u: any) => u.email === email);
+
+        if (existingUser) {
+          throw new Error("User with this email already exists");
+        }
+      }
+
+      // Create new user with unique ID
+      const newUserId = `user-${Date.now()}`;
+      const mockUser: User = {
+        id: newUserId,
+        name: name,
+        email: email,
+        phone: phone,
+      };
+
+      // Save user to our "database"
+      users.push({ ...mockUser, password: password });
+      localStorage.setItem("registeredUsers", JSON.stringify(users));
+
+      setUser(mockUser);
+      setIsAuthenticated(true);
+      localStorage.setItem("user", JSON.stringify(mockUser));
+    } catch (error) {
+      console.error("Registration error:", error);
+      throw error;
+    }
   };
 
-  // Выход из системы
+  // Logout
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
     localStorage.removeItem("user");
   };
 
-  // Обновление данных пользователя
+  // Update user data
   const updateUser = (userData: Partial<User>) => {
     if (user) {
       const updatedUser = { ...user, ...userData };
@@ -158,25 +213,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  // Покупка абонемента
-  const purchaseMembership = (plan: string) => {
+  // Purchase membership
+  const purchaseMembership = (
+    plan: string,
+    style?: string,
+    classes: number = 8,
+  ) => {
     if (user) {
-      // Устанавливаем срок действия абонемента на 30 дней
-      const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + 30);
+      const purchasedAt = new Date();
 
       const updatedUser = {
         ...user,
         membership: {
           plan: plan,
-          expiresAt: expiresAt,
+          style: style,
+          remainingClasses: classes,
+          totalClasses: classes,
+          purchasedAt: purchasedAt,
         },
       };
 
       setUser(updatedUser);
       localStorage.setItem("user", JSON.stringify(updatedUser));
 
-      // Запрашиваем разрешение на отправку уведомлений
+      // Request permission for notifications
       if (
         Notification.permission !== "granted" &&
         Notification.permission !== "denied"
@@ -184,10 +244,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         Notification.requestPermission();
       }
 
-      // Отправляем уведомление о покупке абонемента
+      // Send notification about membership purchase
       if (Notification.permission === "granted") {
-        new Notification("Абонемент активирован", {
-          body: `Ваш абонемент "${plan}" успешно активирован и действует до ${expiresAt.toLocaleDateString()}`,
+        new Notification("Membership Activated", {
+          body: `Your membership \"${plan}\" ${style ? `(${style})` : ""} has been successfully activated. ${classes} ${getClassesWord(classes)} available.`,
           icon: "/favicon.ico",
         });
       }

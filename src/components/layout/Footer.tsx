@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Facebook,
   Instagram,
@@ -7,8 +7,10 @@ import {
   Mail,
   MapPin,
   Phone,
+  CalendarCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 
 interface FooterProps {
   studioName?: string;
@@ -21,6 +23,7 @@ interface FooterProps {
     twitter?: string;
     youtube?: string;
   };
+  onTrialButtonClick?: () => void;
 }
 
 const Footer = ({
@@ -34,7 +37,39 @@ const Footer = ({
     twitter: "https://twitter.com",
     youtube: "https://youtube.com",
   },
+  onTrialButtonClick,
 }: FooterProps) => {
+  const { toast } = useToast();
+
+  const handleSubscribe = () => {
+    const emailInput = document.getElementById(
+      "newsletter-email",
+    ) as HTMLInputElement;
+    const emailValue = emailInput?.value;
+
+    if (!emailValue || !emailValue.includes("@")) {
+      toast({
+        title: "Ошибка",
+        description: "Пожалуйста, введите корректный адрес электронной почты",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // In a real application, you would send this to your backend
+    // For now, we'll just show a success message
+    console.log(`Subscription email: ${emailValue}`);
+
+    // Clear the input field
+    emailInput.value = "";
+
+    // Show success message
+    toast({
+      title: "Успешно!",
+      description: `Вы успешно подписались на рассылку с адресом ${emailValue}`,
+      variant: "default",
+    });
+  };
   return (
     <footer className="bg-black text-white py-12 px-6 md:px-12 lg:px-24">
       <div className="max-w-7xl mx-auto">
@@ -154,6 +189,17 @@ const Footer = ({
                   Контакты
                 </a>
               </li>
+              {onTrialButtonClick && (
+                <li>
+                  <button
+                    onClick={onTrialButtonClick}
+                    className="text-gray-300 hover:text-purple-400 transition-colors flex items-center"
+                  >
+                    <CalendarCheck size={16} className="mr-1" />
+                    Пробное занятие
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
 
@@ -185,6 +231,15 @@ const Footer = ({
                   {email}
                 </a>
               </div>
+              {onTrialButtonClick && (
+                <Button
+                  onClick={onTrialButtonClick}
+                  className="mt-3 bg-purple-600 hover:bg-purple-700 text-white w-full"
+                >
+                  <CalendarCheck size={16} className="mr-2" />
+                  Записаться на пробное занятие
+                </Button>
+              )}
             </div>
           </div>
 
@@ -202,8 +257,12 @@ const Footer = ({
                 type="email"
                 placeholder="Ваш адрес эл. почты"
                 className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-400 text-white"
+                id="newsletter-email"
               />
-              <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+              <Button
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+                onClick={handleSubscribe}
+              >
                 Подписаться
               </Button>
             </div>

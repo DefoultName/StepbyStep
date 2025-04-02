@@ -30,37 +30,31 @@ const ProfileDialog = ({ trigger }: ProfileDialogProps) => {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent
-        className="bg-black border border-purple-700 text-white p-0"
+        className="bg-black border border-purple-700 text-white p-0 max-h-[90vh] overflow-hidden max-w-3xl w-full"
         hideClose
       >
         {view === "login" && (
-          <LoginForm
-            open={view === "login"}
-            onOpenChange={(isOpen) => !isOpen && setOpen(false)}
-            onRegisterClick={() => setView("register")}
-          />
+          <LoginForm onRegisterClick={() => setView("register")} />
         )}
 
         {view === "register" && (
-          <RegisterForm
-            open={view === "register"}
-            onOpenChange={(isOpen) => !isOpen && setOpen(false)}
-            onLoginClick={() => setView("login")}
-          />
+          <RegisterForm onLoginClick={() => setView("login")} />
         )}
 
         {view === "profile" && (
           <UserProfile
-            open={view === "profile"}
-            onOpenChange={(isOpen) => !isOpen && setOpen(false)}
             onPurchaseMembership={() => setView("membership")}
+            open={open}
+            onOpenChange={handleOpenChange}
           />
         )}
 
         {view === "membership" && (
           <MembershipPurchase
-            open={view === "membership"}
-            onOpenChange={(isOpen) => !isOpen && setOpen(false)}
+            open={true}
+            onOpenChange={(isOpen) => {
+              if (!isOpen) setView("profile");
+            }}
             onSuccess={() => setView("profile")}
           />
         )}

@@ -11,12 +11,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface MembershipPlan {
   id: string;
   name: string;
   price: number;
-  duration: string;
+  classes: number;
   features: string[];
   popular?: boolean;
   color?: string;
@@ -29,60 +36,194 @@ interface MembershipPurchaseProps {
 }
 
 const MembershipPurchase = ({
-  open,
-  onOpenChange,
+  open = true,
+  onOpenChange = () => {},
   onSuccess,
 }: MembershipPurchaseProps) => {
   const { purchaseMembership } = useAuth();
   const [selectedPlan, setSelectedPlan] = useState<MembershipPlan | null>(null);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const [selectedStyle, setSelectedStyle] = useState<string>("Все стили");
 
-  const plans: MembershipPlan[] = [
-    {
-      id: "basic",
-      name: "Базовый",
-      price: 5900,
-      duration: "месяц",
-      features: [
-        "Доступ к 2 занятиям в неделю",
-        "Онлайн-система бронирования",
-        "Базовые материалы по танцам",
-        "Без регистрационного сбора",
-      ],
-      color: "bg-purple-600",
-    },
-    {
-      id: "premium",
-      name: "Премиум",
-      price: 9900,
-      duration: "месяц",
-      features: [
-        "Безлимитные занятия",
-        "Приоритетное бронирование",
-        "Доступ к мастер-классам",
-        "Отслеживание личного прогресса",
-        "Эксклюзивные мероприятия для участников",
-        "Скидки на товары",
-      ],
-      popular: true,
-      color: "bg-amber-500",
-    },
-    {
-      id: "family",
-      name: "Семейный",
-      price: 14900,
-      duration: "месяц",
-      features: [
-        "Доступ для 4 членов семьи",
-        "Безлимитные занятия",
-        "Приоритетное бронирование",
-        "Доступ к мастер-классам",
-        "Семейные танцевальные мероприятия",
-        "Частные семейные занятия (2 раза в месяц)",
-      ],
-      color: "bg-purple-800",
-    },
-  ];
+  // Планы для разных стилей танцев
+  const getPlansForStyle = (style: string): MembershipPlan[] => {
+    switch (style) {
+      case "Балет":
+        return [
+          {
+            id: "ballet-basic",
+            name: "Балет Базовый",
+            price: 6500,
+            classes: 8,
+            features: [
+              "8 занятий балета",
+              "Онлайн-система бронирования",
+              "Базовые материалы по балету",
+              "Специальная балетная обувь в подарок",
+            ],
+            color: "bg-pink-600",
+          },
+          {
+            id: "ballet-premium",
+            name: "Балет Премиум",
+            price: 10900,
+            classes: 16,
+            features: [
+              "16 занятий балета",
+              "Приоритетное бронирование",
+              "Доступ к мастер-классам по балету",
+              "Индивидуальная консультация с хореографом",
+              "Участие в балетных постановках",
+            ],
+            popular: true,
+            color: "bg-pink-500",
+          },
+        ];
+      case "Современные танцы":
+        return [
+          {
+            id: "contemporary-basic",
+            name: "Современные Базовый",
+            price: 6200,
+            classes: 8,
+            features: [
+              "8 занятий современных танцев",
+              "Онлайн-система бронирования",
+              "Видеоуроки для практики дома",
+              "Доступ к музыкальной библиотеке",
+            ],
+            color: "bg-blue-600",
+          },
+          {
+            id: "contemporary-premium",
+            name: "Современные Премиум",
+            price: 10500,
+            classes: 16,
+            features: [
+              "16 занятий современных танцев",
+              "Приоритетное бронирование",
+              "Участие в современных постановках",
+              "Мастер-классы от приглашенных хореографов",
+              "Персональный план развития",
+            ],
+            popular: true,
+            color: "bg-blue-500",
+          },
+        ];
+      case "Хип-Хоп":
+        return [
+          {
+            id: "hiphop-basic",
+            name: "Хип-Хоп Базовый",
+            price: 5800,
+            classes: 8,
+            features: [
+              "8 занятий хип-хопа",
+              "Онлайн-система бронирования",
+              "Базовые элементы и техники",
+              "Участие в джемах студии",
+            ],
+            color: "bg-yellow-600",
+          },
+          {
+            id: "hiphop-premium",
+            name: "Хип-Хоп Премиум",
+            price: 9800,
+            classes: 16,
+            features: [
+              "16 занятий хип-хопа",
+              "Приоритетное бронирование",
+              "Участие в баттлах и соревнованиях",
+              "Индивидуальные тренировки",
+              "Мастер-классы от известных танцоров",
+            ],
+            popular: true,
+            color: "bg-yellow-500",
+          },
+        ];
+      case "Джаз":
+        return [
+          {
+            id: "jazz-basic",
+            name: "Джаз Базовый",
+            price: 6300,
+            classes: 8,
+            features: [
+              "8 занятий джаза",
+              "Онлайн-система бронирования",
+              "Основы джазовой хореографии",
+              "Доступ к видеоурокам",
+            ],
+            color: "bg-purple-600",
+          },
+          {
+            id: "jazz-premium",
+            name: "Джаз Премиум",
+            price: 10700,
+            classes: 16,
+            features: [
+              "16 занятий джаза",
+              "Приоритетное бронирование",
+              "Участие в джазовых постановках",
+              "Индивидуальные консультации",
+              "Специальные мероприятия для участников",
+            ],
+            popular: true,
+            color: "bg-purple-500",
+          },
+        ];
+      default: // Все стили
+        return [
+          {
+            id: "basic",
+            name: "Базовый",
+            price: 5900,
+            classes: 8,
+            features: [
+              "8 занятий",
+              "Онлайн-система бронирования",
+              "Базовые материалы по танцам",
+              "Без регистрационного сбора",
+            ],
+            color: "bg-purple-600",
+          },
+          {
+            id: "premium",
+            name: "Премиум",
+            price: 9900,
+            classes: 16,
+            features: [
+              "16 занятий",
+              "Приоритетное бронирование",
+              "Доступ к мастер-классам",
+              "Отслеживание личного прогресса",
+              "Эксклюзивные мероприятия для участников",
+              "Скидки на товары",
+            ],
+            popular: true,
+            color: "bg-amber-500",
+          },
+          {
+            id: "family",
+            name: "Семейный",
+            price: 14900,
+            classes: 32,
+            features: [
+              "32 занятия",
+              "Доступ для 4 членов семьи",
+              "Приоритетное бронирование",
+              "Доступ к мастер-классам",
+              "Семейные танцевальные мероприятия",
+              "Частные семейные занятия (2 раза)",
+            ],
+            color: "bg-purple-800",
+          },
+        ];
+    }
+  };
+
+  // Получаем планы в зависимости от выбранного стиля
+  const plans = getPlansForStyle(selectedStyle);
 
   const handlePurchase = (planId: string) => {
     const plan = plans.find((p) => p.id === planId);
@@ -93,12 +234,18 @@ const MembershipPurchase = ({
   };
 
   const handlePaymentSuccess = (planName: string) => {
-    purchaseMembership(planName);
-    if (onSuccess) {
-      onSuccess();
+    if (selectedPlan) {
+      purchaseMembership(
+        planName,
+        selectedStyle !== "Все стили" ? selectedStyle : undefined,
+        selectedPlan.classes,
+      );
+      if (onSuccess) {
+        onSuccess();
+      }
+      setIsPaymentOpen(false);
+      onOpenChange(false);
     }
-    setIsPaymentOpen(false);
-    onOpenChange(false);
   };
 
   return (
@@ -118,6 +265,30 @@ const MembershipPurchase = ({
                 Выберите подходящий план для вашего танцевального пути
               </DialogDescription>
             </DialogHeader>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Выберите стиль танца
+              </label>
+              <Select value={selectedStyle} onValueChange={setSelectedStyle}>
+                <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
+                  <SelectValue placeholder="Выберите стиль" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-gray-700 text-white">
+                  <SelectItem value="Все стили">Все стили</SelectItem>
+                  <SelectItem value="Балет">Балет</SelectItem>
+                  <SelectItem value="Современные танцы">
+                    Современные танцы
+                  </SelectItem>
+                  <SelectItem value="Хип-Хоп">Хип-Хоп</SelectItem>
+                  <SelectItem value="Джаз">Джаз</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-sm text-gray-400 mt-1">
+                Выбор стиля ограничит использование абонемента только выбранным
+                направлением
+              </p>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
               {plans.map((plan) => (
@@ -153,7 +324,9 @@ const MembershipPurchase = ({
                         <span className="text-3xl font-bold">
                           {plan.price}₽
                         </span>
-                        <span className="text-gray-400">/{plan.duration}</span>
+                        <span className="text-gray-400">
+                          /{plan.classes} занятий
+                        </span>
                       </div>
 
                       <ul className="space-y-3 mb-6">

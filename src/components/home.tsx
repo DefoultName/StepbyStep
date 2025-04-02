@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "./auth/AuthContext";
 
@@ -27,9 +27,9 @@ const Home = () => {
     }
   }, []);
 
-  const handleTrialButtonClick = () => {
+  const handleTrialButtonClick = useCallback(() => {
     setIsTrialFormOpen(true);
-  };
+  }, []);
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -55,7 +55,7 @@ const Home = () => {
       <TestimonialsSection />
 
       {/* Footer */}
-      <Footer />
+      <Footer onTrialButtonClick={handleTrialButtonClick} />
 
       {/* Free Trial Form Modal */}
       <FreeTrialForm

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Calendar, Clock, Users } from "lucide-react";
 import ProfileDialog from "../auth/ProfileDialog";
+import ClassBookingForm from "../auth/ClassBookingForm";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,6 +21,7 @@ interface ClassEvent {
   instructor: string;
   time: string;
   date: string;
+  day: string;
   spots: number;
   level: string;
 }
@@ -38,6 +40,7 @@ const SchedulePreview = ({
       instructor: "Алиса Рейнольдс",
       time: "18:00 - 19:30",
       date: "Понедельник, 12 июня",
+      day: "Понедельник",
       spots: 8,
       level: "Средний",
     },
@@ -47,6 +50,7 @@ const SchedulePreview = ({
       instructor: "Маркус Чен",
       time: "17:30 - 19:00",
       date: "Вторник, 13 июня",
+      day: "Вторник",
       spots: 5,
       level: "Начинающий",
     },
@@ -56,6 +60,7 @@ const SchedulePreview = ({
       instructor: "София Уильямс",
       time: "19:00 - 20:30",
       date: "Среда, 14 июня",
+      day: "Среда",
       spots: 12,
       level: "Все уровни",
     },
@@ -65,6 +70,7 @@ const SchedulePreview = ({
       instructor: "Дерек Джонсон",
       time: "18:30 - 20:00",
       date: "Четверг, 15 июня",
+      day: "Четверг",
       spots: 6,
       level: "Продвинутый",
     },
@@ -141,7 +147,14 @@ const SchedulePreview = ({
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <ProfileDialog
+                  <ClassBookingForm
+                    open={false}
+                    onOpenChange={() => {}}
+                    className={classItem.title}
+                    instructor={classItem.instructor}
+                    time={classItem.time}
+                    date={classItem.date}
+                    level={classItem.level}
                     trigger={
                       <Button
                         className="w-full bg-purple-600 hover:bg-purple-700 text-white"

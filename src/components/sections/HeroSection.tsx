@@ -15,7 +15,7 @@ const HeroSection = ({
   subtitle = "Где страсть встречается с движением. Начните свой танцевальный путь с нами.",
   ctaText = "Начать бесплатно",
   videoSrc = "https://player.vimeo.com/external/517090081.hd.mp4?s=90e95145af79b0d0066676d5c7b6a2d4a6b5f5c0&profile_id=175&oauth2_token_id=57447761",
-  onCtaClick = () => console.log("CTA clicked"),
+  onCtaClick = () => (window.location.href = "/contact"),
 }: HeroSectionProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
